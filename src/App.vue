@@ -1,29 +1,81 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <router-view />
+    <!-- <router-view/> -->
   </div>
 </template>
 
 <style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+h3 {
+  margin: 0;
+  padding: 0;
+  line-height: 30px;
 }
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
+
+</style>
+<script>
+export default {
+  data() {
+    return {
+      
     }
   }
 }
-</style>
+// import filesm from "@/components/file";
+// import * as api from "@/api/api.js"
+
+// export default {
+//   components: {
+//     filesm
+//   },
+//   data() {
+//     return {
+//       folderName: '',
+//       dialogVisible: false,
+//       user: {
+//         name: 'lunacia',
+//         admin:false
+//       },
+//       pathList: [],
+//       tableData: []
+//     };
+//   },
+//   methods: {
+//     handleOpen(key, keyPath) {
+//       console.log(key, keyPath);
+//     },
+//     handleClose(key, keyPath) {
+//       console.log(key, keyPath);
+//     },
+//     handleCurrentChange() {},
+//     // formatVal(r, i) {
+//     //   if (r.type == "folder") {
+//     //     return '<i class="el-icon-folder" />' + r.name + "";
+//     //   } else {
+//     //     return '<i class="el-icon-document" />' + r.name + "";
+//     //   }
+//     // }
+//     handleCreateFolder() {
+//       api.createFolder({name:'/'+this.$store.state.path.join('/')+'/'+this.folderName}).then((res) => {
+//         this.$store.commit('handleNewFolder')
+//       }).catch((err) => {
+        
+//       });
+//       this.dialogVisible=false
+//     },
+//     jump2Root() {
+//       this.$store.commit('handleJump')
+//     }
+//   },
+//   computed: {
+//     listenPath: function() {
+//       return this.$store.state.path
+//     }
+//   },
+//   watch: {
+//     listenPath: function(oldvar, newvar) {
+//       console.log(oldvar+' '+newvar)
+//     }
+//   }
+// };
+</script>
