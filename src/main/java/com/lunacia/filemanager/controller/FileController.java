@@ -54,7 +54,8 @@ public class FileController {
 		if (!path.exists()) {
 			path.mkdirs();
 		}
-		java.io.File storage = new java.io.File(location + "/" + file.getTimestamp());
+		java.io.File storage = new java.io.File(location + "/" + file.getTimestamp() +
+				file.getOrigin().substring(file.getOrigin().lastIndexOf('.')));
 		multipartFile.transferTo(storage);
 		//储存上传记录至数据库
 		Record record = new Record();
@@ -77,18 +78,17 @@ public class FileController {
 		List<SimpleFile> list = new LinkedList<>();
 		HashMap<String, Object> res = new HashMap<>();
 		HashMap<String, Object> data = new HashMap<>();
-		List<File> dbFiles = new LinkedList<>();
-//		File myFile = fileService.getFile("/file/lunacia/156009330876803517");
-//		System.out.println(myFile.getLocation()+"/"+myFile.getOrigin());
+		List<File> dbFiles;
 		if (file.exists()) {
 			java.io.File[] lists = file.listFiles();
 			dbFiles = fileService.getAllFiles(currentLocation);
 			for (int i = 0; i < lists.length; i++) {
 				SimpleFile sf = new SimpleFile();
 				if (lists[i].isFile()) {
-					if (lists[i].getName().matches("\\d+")) {
+					if (lists[i].getName().substring(0, lists[i].getName().lastIndexOf('.')).matches("\\d+")) {
 						for (File f: dbFiles) {
-							if (f.getTimestamp().equals(lists[i].getName()))
+							if (f.getTimestamp()
+									.equals(lists[i].getName().substring(0, lists[i].getName().lastIndexOf('.'))))
 								sf.setName(f.getOrigin());
 						}
 					} else {
@@ -122,7 +122,9 @@ public class FileController {
 		try {
 			File myFile = fileService.getFile(URLDecoder.decode(filePath, "utf-8"));
 			java.io.File file = new java.io.File(filePath.substring(0,
-					filePath.lastIndexOf('/') + 1) + myFile.getTimestamp());
+					filePath.lastIndexOf('/') + 1) + myFile.getTimestamp() + myFile.getOrigin().substring(
+							myFile.getOrigin().lastIndexOf('.')
+			));
 			String fileName = myFile.getOrigin();
 			// 获取本地文件系统中的文件资源
 			FileSystemResource resource = new FileSystemResource(file.getAbsolutePath());
@@ -208,11 +210,19 @@ public class FileController {
 	public HashMap<String, Object> deleteFile(@RequestParam("path") String absolutePath,
 	                                          @RequestParam("username") String username) {
 		HashMap<String, Object> res = new HashMap<>();
+		if (absolutePath.lastIndexOf('.') == -1) {
+			java.io.File file = new java.io.File(absolutePath);
+			deleteFile(file, username);
+			res.put("code", 200);
+			res.put("msg", "");
+			return res;
+		}
 		File myFile = fileService.getFile(absolutePath);
 //		System.out.println(absolutePath);
 //		System.out.println(myFile == null);
 		java.io.File file = new java.io.File(absolutePath.substring(0,
-				absolutePath.lastIndexOf('/') + 1) + myFile.getTimestamp());
+				absolutePath.lastIndexOf('/') + 1) + myFile.getTimestamp() +
+				myFile.getOrigin().substring(myFile.getOrigin().lastIndexOf('.')));
 //		System.out.println(file.getAbsolutePath());
 		deleteFile(file, username);
 		res.put("code", 200);
@@ -220,6 +230,11 @@ public class FileController {
 		return res;
 	}
 
+	/**
+	 * 判断文件大小
+	 * @param size
+	 * @return
+	 */
 	private String checkSize (Long size) {
 		double fileSize = 0;
 		char m;
@@ -252,7 +267,7 @@ public class FileController {
 			if (dirFile.isFile()) {
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Record record = new Record();
-				record.setFileName(fileService.getFile(dirFile.getAbsolutePath()).getOrigin());
+				record.setFileName(fileService.getFile(dirFile.getAbsolutePath().substring(0, dirFile.getAbsolutePath().lastIndexOf('.'))).getOrigin());
 				record.setUsername(username);
 				record.setOperationDate(simpleDateFormat.format(new Date()));
 				record.setOperation("delete");

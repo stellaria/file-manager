@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -23,7 +25,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public List<User> getUserlist() {
+		return userMapper.getUserlist();
+	}
+
+	@Override
 	public void signUp(User user) {
 		userMapper.signUp(user);
+	}
+
+	@Override
+	public void changeAuth(String id, boolean upload, boolean download, boolean delete) {
+		userMapper.changeAuth(id, upload, download, delete);
 	}
 }

@@ -7,9 +7,10 @@ public class User {
 	private String password;
 	private String email;
 	private String group;
-	private int admin;
-	private int upload;
-	private int download;
+	private boolean admin;
+	private boolean upload;
+	private boolean download;
+	private boolean delete;
 
 	public int getId() {
 		return id;
@@ -51,28 +52,36 @@ public class User {
 		this.group = group;
 	}
 
-	public int getAdmin() {
+	public boolean isAdmin() {
 		return admin;
 	}
 
-	public void setAdmin(int admin) {
+	public void setAdmin(boolean admin) {
 		this.admin = admin;
 	}
 
-	public int getUpload() {
+	public boolean isUpload() {
 		return upload;
 	}
 
-	public void setUpload(int upload) {
+	public void setUpload(boolean upload) {
 		this.upload = upload;
 	}
 
-	public int getDownload() {
+	public boolean isDownload() {
 		return download;
 	}
 
-	public void setDownload(int download) {
+	public void setDownload(boolean download) {
 		this.download = download;
+	}
+
+	public boolean isDelete() {
+		return delete;
+	}
+
+	public void setDelete(boolean delete) {
+		this.delete = delete;
 	}
 
 	@Override
