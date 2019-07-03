@@ -65,10 +65,13 @@ export default {
       this.currentPage = val
     },
     handleJump(val) {
+      var count = parseInt(this.inputPage)
       if (this.inputPage === '') {
-        this.currentPage = 1
+        return
+      } else if (count < 1 || count > this.pageCount) {
+        return
       } else {
-        this.currentPage = parseInt(this.inputPage)
+        this.currentPage = count
       }
     }
   },

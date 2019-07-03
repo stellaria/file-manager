@@ -68,7 +68,7 @@ import imageView from "@/components/image";
 
 export default {
   components: {
-    filesm, imageView
+    // filesm, imageView
   },
   data() {
     return {
@@ -86,10 +86,8 @@ export default {
   },
   methods: {
     handleOpen(key, keyPath) {
-      console.log(key, keyPath);
     },
     handleClose(key, keyPath) {
-      console.log(key, keyPath);
     },
     handleCurrentChange() {},
     // formatVal(r, i) {
@@ -132,11 +130,14 @@ export default {
     }
   },
   created() {
-    var user = JSON.parse(localStorage.getItem('user'))
-    this.$store.commit('setUsername', user.username)
-    this.$store.commit('setUserAdmin', user.admin)
-    this.user.name = this.$store.state.username
-    this.user.admin = this.$store.state.admin
+    if (localStorage.getItem('user') !== null) {
+      var user = JSON.parse(localStorage.getItem('user'))
+      this.$store.commit('setUsername', user.username)
+      this.$store.commit('setUserAdmin', user.admin)
+      this.user.name = this.$store.state.username
+      this.user.admin = this.$store.state.admin
+    }
+    
   },
   mounted() {
     this.user.name = this.$store.state.username

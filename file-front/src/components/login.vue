@@ -83,6 +83,8 @@ export default {
         this.$store.commit('setDownloadable', user.download)
         this.$store.commit('setDeletable', user.delete)
         this.$router.push('/file')
+      } else {
+        this.$router.push('/login')
       }
     }
   },
