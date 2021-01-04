@@ -49,22 +49,11 @@ public class LoginController {
 		User user = new User();
 		user.setUsername((String) resMap.get("username"));
 		user.setPassword(Encode.MD5((String) resMap.get("password")));
-		user.setGroup((String) resMap.get("group"));
-		user.setEmail((String) resMap.get("email"));
-		if (userService.findDuplicate(user.getEmail(), user.getUsername()) == null) {
-			userService.signUp(user);
-			res.put("code", 200);
-			res.put("msg", "");
-			File file = new File("/file/"+user.getUsername());
-			if (!file.exists()) {
-				file.mkdirs();
-			}
-		} else if (!confirmCode.equals(resMap.get("confirmCode"))) {
-			res.put("code", 400);
-			res.put("msg", "confirm code doesn't match!");
-		} else {
-			res.put("code", 400);
-			res.put("msg", "sign up failed, the email address or username has been used");
+		res.put("code", 200);
+		res.put("msg", "");
+		File file = new File("/file/"+user.getUsername());
+		if (!file.exists()) {
+			file.mkdirs();
 		}
 		return res;
 	}

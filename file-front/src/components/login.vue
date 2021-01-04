@@ -54,7 +54,7 @@ export default {
       } else {
         axios({
           method: "post",
-          url: "http://localhost/apis/login",
+          url: "http://39.106.73.27/apis/login",
           data: {
             username: this.id,
             password: this.password

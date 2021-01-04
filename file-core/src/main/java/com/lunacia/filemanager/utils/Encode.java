@@ -1,11 +1,15 @@
 package com.lunacia.filemanager.utils;
 
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 
 public class Encode {
@@ -28,7 +32,37 @@ public class Encode {
 		return md5code;
 	}
 
+	public static String Base64Encode(String param) {
+		Base64.Encoder encoder = Base64.getEncoder();
+		byte[] text = param.getBytes();
+
+		return encoder.encodeToString(text);
+	}
+
+	public static String Base64Decode(String param) throws IOException {
+		Base64.Decoder decoder = Base64.getDecoder();
+
+		return new String(decoder.decode(param), "UTF-8");
+
+	}
+
 	public static void main(String[] args) throws ParseException, IOException {
-		System.out.println(Encode.MD5("jack990729"));
+//		System.out.println(Encode.MD5("jack990729"));
+
+		Runtime runtime = Runtime.getRuntime();
+		String[] commands = {"/bin/bash","-c", "ps -el"};
+		Process p = runtime.exec(commands);
+		BufferedReader br = new BufferedReader(new InputStreamReader((p.getInputStream())));
+
+		String str;
+		File file = new File("o.out");
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+		while ((str=br.readLine())!=null) {
+//			System.out.println(str);
+			writer.write(str+"\n");
+		}
 	}
 }

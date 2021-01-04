@@ -6,7 +6,7 @@
         circle
         @click="handleClose"></el-button>
     </span>
-    <img :src="url" class="image" style="zoom">
+    <img :src="url" class="image"/>
   </div>
 </template>
 

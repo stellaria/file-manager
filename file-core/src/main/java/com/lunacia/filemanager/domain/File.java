@@ -1,7 +1,14 @@
 package com.lunacia.filemanager.domain;
 
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "file")
 public class File {
-	private int id;
+
+
+	private String id;
 	private String origin;
 	private String timestamp;
 	private String owner;
@@ -9,11 +16,11 @@ public class File {
 	private String size;
 	private String date;
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

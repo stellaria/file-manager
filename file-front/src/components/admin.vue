@@ -79,7 +79,7 @@ export default {
     },
     handleChange() {
       axios({
-        url: 'http://localhost/apis/change',
+        url: 'http://39.106.73.27/apis/change',
         method: 'post',
         data: {
           userlist: this.tableData

@@ -5,13 +5,12 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    // path: ['file', 'lunacia']
+    path: ['file', 'lunacia'],
     imageUrl: '',
     pdfUrl: '',
-    path: [],
     newFolder: false,
     jump: false,
-    username: '',
+    username: 'lunaica',
     admin: false,
     delete: true,
     upload: true,
@@ -48,13 +47,13 @@ export default new Vuex.Store({
       this.state.download = n
     },
     setImageUrl(state, n) {
-      this.state.imageUrl = 'http://localhost:8081/'+n
+      this.state.imageUrl = 'http://39.106.73.27:8081'+n
     },
     setPictureShow(state, n) {
       this.state.pictureShow = n
     },
     setPdfUrl(state, n) {
-      this.state.pdfUrl = 'http://localhost:8081/'+n
+      this.state.pdfUrl = 'http://39.106.73.27:8081'+n
     }
   },
   actions: {

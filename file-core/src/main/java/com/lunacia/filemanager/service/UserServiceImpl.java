@@ -1,41 +1,40 @@
 package com.lunacia.filemanager.service;
 
-import com.lunacia.filemanager.dao.UserMapper;
 import com.lunacia.filemanager.domain.User;
+import com.lunacia.filemanager.utils.Encode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
 
+
+	private static final String USER_COLLECTION = "user";
+
 	@Autowired
-	private UserMapper userMapper;
+	private MongoTemplate mongoTemplate;
 
 	@Override
 	public User login(String username, String password) {
-		return userMapper.login(username, password);
-	}
 
-	@Override
-	public User findDuplicate(String email, String username) {
-		return userMapper.findDuplicate(email, username);
-	}
+		Query query = new Query(Criteria.where("username").is(username).and("password").is(Encode.MD5(password)));
 
-	@Override
-	public List<User> getUserlist() {
-		return userMapper.getUserlist();
+		User user = mongoTemplate.findOne(query, User.class, USER_COLLECTION);
+		if (user.getId() == null)
+			return null;
+		else
+			return user;
 	}
+//
+//	@Override
+//	public User findDuplicate(String email, String username) {
+//		return userMapper.findDuplicate(email, username);
+//	}
 
-	@Override
-	public void signUp(User user) {
-		userMapper.signUp(user);
-	}
 
-	@Override
-	public void changeAuth(String id, boolean upload, boolean download, boolean delete) {
-		userMapper.changeAuth(id, upload, download, delete);
-	}
+
 }

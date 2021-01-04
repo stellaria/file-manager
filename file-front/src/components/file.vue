@@ -7,7 +7,7 @@
       class="upload-demo"
       ref="upload"
       :multiple="false"
-      action="https://localhost/apis/upload"
+      action="https://39.106.73.27/apis/upload"
       :on-preview="handlePreview"
       :http-request="uploadFile"
       :auto-upload="false"
@@ -167,7 +167,7 @@ export default {
       // console.log(form.get("location"));
       // console.log(form.get("timestamp"));
       axios({
-        url: "http://localhost/apis/upload",
+        url: "http://39.106.73.27/apis/upload",
         method: "post",
         data: form
       }).then(res => {

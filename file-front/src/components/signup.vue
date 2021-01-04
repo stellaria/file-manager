@@ -94,7 +94,7 @@ export default {
         this.confirmCode !== ""
       ) {
         axios({
-          url: "http://localhost/apis/signUp",
+          url: "http://39.106.73.27/apis/signUp",
           method: "post",
           data: {
             username: this.username,

@@ -8,6 +8,8 @@ import File from "@/components/file.vue"
 import Login from "@/components/login.vue"
 import Home from "@/components/home.vue"
 import Admin from "@/components/admin.vue"
+import Preview from "@/components/preview.vue"
+import Image from "@/components/image.vue"
 
 export default new Router({
   mode: 'history',
@@ -28,10 +30,7 @@ export default new Router({
           path: 'admin',
           component: Admin
         }
-      ],
-      meta: {
-        requireAuth: true
-      }
+      ]
     },
     {
       name: 'login',
@@ -39,19 +38,14 @@ export default new Router({
       component: Login
     },
     {
-      name: 'signup',
-      path: '/sign',
-      component: ()=> import("@/components/signup.vue") 
-    },
-    {
       name: 'preview',
       path: '/preview',
-      component: ()=> import("@/components/preview.vue")
+      component: Preview
     },
     {
       name: 'image',
       path: '/image',
-      component: ()=> import("@/components/image.vue")
+      component: Image
     }
   ]
 })
