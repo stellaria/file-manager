@@ -47,7 +47,8 @@ public class FileServiceImpl implements FileService{
 
 	@Override
 	public void delete(File file) {
-		mongoTemplate.remove(Criteria.where("_id").is(file.getId()));
+		Query query = new Query(Criteria.where("_id").is(file.getId()));
+		mongoTemplate.findAndRemove(query, File.class, FILE_COLLECTION);
 	}
 
 	@Override
@@ -64,7 +65,14 @@ public class FileServiceImpl implements FileService{
 	}
 
 	@Override
-	public File findFileByTimestamp(String timestamp) {
+	public File getFileByNameAndLocation(String name, String location) {
+		Query query = new Query(Criteria.where("location").regex(location).and("origin").is(name));
+
+		return mongoTemplate.findOne(query, File.class, FILE_COLLECTION);
+	}
+
+	@Override
+	public File getFileByTimestamp(String timestamp) {
 
 		Query query = new Query(Criteria.where("timestamp").is(timestamp));
 		return mongoTemplate.findOne(query, File.class, FILE_COLLECTION);

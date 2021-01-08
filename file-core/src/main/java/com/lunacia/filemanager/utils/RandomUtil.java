@@ -38,7 +38,9 @@ public class RandomUtil {
 
 //		File file = new File("/usr/local/var/file_manage/lunacia/web.xml");
 //		System.out.println(file.isFile());
-		System.out.println("/users/tiefblau/var/file_manage".length());
+//		System.out.println("/users/tiefblau/var/file_manage".length());
+		File file = new File("/users/tiefblau/var/file_manage/lunacia/160976363883795381.txt");
+		System.out.println(file.isFile());
 
 	}
 }

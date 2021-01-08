@@ -7,9 +7,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 @Service
+@CrossOrigin
 public class UserServiceImpl implements UserService {
 
 
@@ -21,15 +23,25 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User login(String username, String password) {
 
-		Query query = new Query(Criteria.where("username").is(username).and("password").is(Encode.MD5(password)));
+		Query query = new Query(Criteria.where("username").is(username).and("password").is(password));
 
 		User user = mongoTemplate.findOne(query, User.class, USER_COLLECTION);
-		if (user.getId() == null)
-			return null;
-		else
-			return user;
+		return user;
 	}
-//
+
+	@Override
+	public void init(String username, String password) {
+		Query query = new Query();
+		long count = mongoTemplate.count(query, USER_COLLECTION);
+		if (count == 0L) {
+			User user = new User();
+			user.setUsername(username);
+			user.setPassword(Encode.MD5(password));
+			mongoTemplate.insert(user, USER_COLLECTION);
+		}
+	}
+
+	//
 //	@Override
 //	public User findDuplicate(String email, String username) {
 //		return userMapper.findDuplicate(email, username);

@@ -4,6 +4,7 @@ package com.lunacia.filemanager.controller;
 import com.lunacia.filemanager.domain.File;
 import com.lunacia.filemanager.domain.Record;
 import com.lunacia.filemanager.domain.SimpleFile;
+import com.lunacia.filemanager.service.FileService;
 import com.lunacia.filemanager.service.FileServiceImpl;
 import com.lunacia.filemanager.utils.Encode;
 import com.lunacia.filemanager.utils.RandomUtil;
@@ -27,10 +28,11 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class FileController {
 
 	@Autowired
-	private FileServiceImpl fileService;
+	private FileService fileService;
 
 	private static final String SECRET = "lunacia";
 
@@ -50,9 +52,9 @@ public class FileController {
 		file.setOwner(username);
 		file.setDate(simpleDateFormat.format(date));
 		file.setOrigin(multipartFile.getOriginalFilename());
-		file.setLocation(location+"/"+file.getOrigin());
-		file.setSize(checkSize(multipartFile.getSize()));
 		file.setTimestamp(timestamp+RandomUtil.suffix());
+		file.setLocation(location+"/"+file.getTimestamp() + file.getOrigin().substring(file.getOrigin().lastIndexOf('.')));
+		file.setSize(checkSize(multipartFile.getSize()));
 		fileService.uploadFile(file);
 
 		java.io.File storage = new java.io.File( LOCATION_PREFIX + location + "/" + file.getTimestamp() +
@@ -75,23 +77,28 @@ public class FileController {
 	 */
 	@GetMapping("/filelists")
 	public HashMap<String, Object> getFileList(@RequestParam("current") String currentLocation) {
-		java.io.File file = new java.io.File(currentLocation);
+		java.io.File file = new java.io.File(LOCATION_PREFIX + currentLocation);
 		List<SimpleFile> list = new LinkedList<>();
 		HashMap<String, Object> res = new HashMap<>();
 		HashMap<String, Object> data = new HashMap<>();
-		List<File> dbFiles;
+		List<java.io.File> fileList;
 
-		dbFiles = fileService.getAllFiles(currentLocation);
 		if (file.exists()) {
-			for (File dbFile : dbFiles) {
-				SimpleFile sf = new SimpleFile();
-				sf.setName(dbFile.getOrigin());
-				java.io.File file1 = new java.io.File(LOCATION_PREFIX + dbFile.getLocation());
-				if (file1.isFile())
-					sf.setType("file");
-				else
+			fileList = Arrays.asList(file.listFiles());
+			for (java.io.File f : fileList) {
+				if (f.isDirectory()) {
+					SimpleFile sf = new SimpleFile();
 					sf.setType("folder");
-				list.add(sf);
+					sf.setName(f.getName());
+					list.add(sf);
+				} else {
+					File mf = fileService.getFile(f.getPath().substring(f.getPath().indexOf(currentLocation)));
+					SimpleFile sf = new SimpleFile();
+					sf.setName(mf.getOrigin());
+					sf.setType("file");
+					list.add(sf);
+				}
+
 			}
 			data.put("list", list);
 			res.put("code", 200);
@@ -105,18 +112,19 @@ public class FileController {
 	}
 
 	@PostMapping("/download")
-	public ResponseEntity<FileSystemResource> download(@RequestParam("file") String filePath,
-	                                                   @RequestParam("username") String username,
+	public ResponseEntity<FileSystemResource> download(@RequestBody Map<String, String> body,
 	                                                   HttpServletResponse response) {
 
 
 		try {
-			File myFile = fileService.getFile(URLDecoder.decode(LOCATION_PREFIX+filePath, "utf-8"));
-			java.io.File file = new java.io.File(filePath.substring(0,
-					filePath.lastIndexOf('/') + 1) + myFile.getTimestamp() + myFile.getOrigin().substring(
-							myFile.getOrigin().lastIndexOf('.')
-			));
-			String fileName = myFile.getOrigin();
+			String filePath = URLDecoder.decode(body.get("path"), "utf-8");
+			String username = body.get("username");
+
+			String location = filePath.substring(0, filePath.lastIndexOf('/'));
+			String fileName = filePath.substring(filePath.lastIndexOf('/')+1);
+
+			File myFile = fileService.getFileByNameAndLocation(fileName, location);
+			java.io.File file = new java.io.File(LOCATION_PREFIX + myFile.getLocation());
 			// 获取本地文件系统中的文件资源
 			FileSystemResource resource = new FileSystemResource(file.getAbsolutePath());
 
@@ -193,25 +201,28 @@ public class FileController {
 
 	/**
 	 * 删除文件
-	 * @param absolutePath 绝对路径
-	 * @param username 用户名
 	 * @return
 	 */
 	@PostMapping("/delete")
-	public HashMap<String, Object> deleteFile(@RequestParam("path") String absolutePath,
-	                                          @RequestParam("username") String username) {
+	public HashMap<String, Object> deleteFile(@RequestBody Map<String, String> body) {
+
+		String filePath = body.get("path");
+		String username = body.get("username");
+
+
+		String location = filePath.substring(0, filePath.lastIndexOf('/'));
+		String fileName = filePath.substring(filePath.lastIndexOf('/')+1);
+
 		HashMap<String, Object> res = new HashMap<>();
-		if (absolutePath.lastIndexOf('.') == -1) {
-			java.io.File file = new java.io.File(absolutePath);
+		if (filePath.lastIndexOf('.') == -1) { //文件夹
+			java.io.File file = new java.io.File(LOCATION_PREFIX + filePath);
 			deleteFile(file, username);
 			res.put("code", 200);
 			res.put("msg", "");
 			return res;
 		}
-		File myFile = fileService.getFile(absolutePath);
-		java.io.File file = new java.io.File(absolutePath.substring(0,
-				absolutePath.lastIndexOf('/') + 1) + myFile.getTimestamp() +
-				myFile.getOrigin().substring(myFile.getOrigin().lastIndexOf('.')));
+		File myFile = fileService.getFileByNameAndLocation(fileName, location);
+		java.io.File file = new java.io.File(LOCATION_PREFIX + myFile.getLocation());
 		deleteFile(file, username);
 		res.put("code", 200);
 		res.put("msg", "");
@@ -243,6 +254,24 @@ public class FileController {
 		return str;
 	}
 
+	@PostMapping("/image_url")
+	public ResponseEntity getUrl(@RequestBody Map<String, String> body) {
+		String filePath = body.get("path");
+
+
+		String location = filePath.substring(0, filePath.lastIndexOf('/'));
+		String fileName = filePath.substring(filePath.lastIndexOf('/')+1);
+
+		File file = fileService.getFileByNameAndLocation(fileName, location);
+
+
+		HashMap<String, Object> res = new HashMap<>();
+		res.put("code", 200);
+		res.put("url", file.getLocation());
+
+		return ResponseEntity.ok(res);
+	}
+
 
 	/**
 	 * 递归删除文件及文件夹
@@ -255,12 +284,12 @@ public class FileController {
 			if (dirFile.isFile()) {
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Record record = new Record();
-				record.setFileName(fileService.getFile(dirFile.getAbsolutePath().substring(0, dirFile.getAbsolutePath().lastIndexOf('.'))).getOrigin());
+				record.setFileName(fileService.getFileByTimestamp(dirFile.getName().substring(0, dirFile.getName().lastIndexOf('.'))).getOrigin());
 				record.setUsername(username);
 				record.setOperationDate(simpleDateFormat.format(new Date()));
 				record.setOperation("delete");
 				fileService.record(record);
-				fileService.delete(fileService.getFile(dirFile.getAbsolutePath()));
+				fileService.delete(fileService.getFile(dirFile.getAbsolutePath().replace(LOCATION_PREFIX, "")));
 				return dirFile.delete();
 			}
 			else {
@@ -276,21 +305,35 @@ public class FileController {
 	@PostMapping("/share")
 	public ResponseEntity shareCode(@RequestBody Map<String, Object> body) {
 		Map<String, Object> res = new HashMap<>();
-		String location = (String) body.get("location");
+		Map<String, Object> data = new HashMap<>();
+		String filePath = (String) body.get("location");
+
+
+		String location = filePath.substring(0, filePath.lastIndexOf('/'));
+		String fileName = filePath.substring(filePath.lastIndexOf('/')+1);
+
+		File file = fileService.getFileByNameAndLocation(fileName, location);
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String expire = sdf.format(new Date(System.currentTimeMillis()+EXPIRE_TIME));
 
 
-		String suffix = Encode.Base64Encode(location + "_/" + SECRET + "_/" + expire);
-		res.put("suffix", suffix);
+		String suffix = Encode.Base64Encode(file.getLocation() + "_/" + SECRET + "_/" + expire);
+		suffix = suffix.replaceAll("/","_");
+		res.put("code", 200);
+		res.put("msg", "");
+		data.put("suffix", suffix);
+		res.put("data", data);
 		return ResponseEntity.ok(res);
 	}
 
 	@GetMapping("/share/{shareCode}")
 	public ResponseEntity responseShareCode(@PathVariable String shareCode) {
 		Map<String, Object> res = new HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
+			shareCode = shareCode.replaceAll("_", "/");
 			String context = Encode.Base64Decode(shareCode);
 			String[] slice = context.split("_/");
 			if (slice.length != 3)
@@ -313,7 +356,8 @@ public class FileController {
 			if (file.getId() != null) {
 				res.put("msg","");
 				res.put("code",200);
-				res.put("file",file);
+				data.put("file",file);
+				res.put("data",data);
 			}
 		} catch (ParseException ex) {
 			ex.printStackTrace();

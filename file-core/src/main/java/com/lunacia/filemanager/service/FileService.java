@@ -20,7 +20,9 @@ public interface FileService {
 	File getFile(String absolutePath);
 
 
-	File findFileByTimestamp(String timestamp);
+	File getFileByTimestamp(String timestamp);
+
+	File getFileByNameAndLocation(String name, String location);
 
 	//获取所有文件
 	List<File> getAllFiles(String location);

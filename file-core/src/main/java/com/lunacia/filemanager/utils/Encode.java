@@ -46,23 +46,4 @@ public class Encode {
 
 	}
 
-	public static void main(String[] args) throws ParseException, IOException {
-//		System.out.println(Encode.MD5("jack990729"));
-
-		Runtime runtime = Runtime.getRuntime();
-		String[] commands = {"/bin/bash","-c", "ps -el"};
-		Process p = runtime.exec(commands);
-		BufferedReader br = new BufferedReader(new InputStreamReader((p.getInputStream())));
-
-		String str;
-		File file = new File("o.out");
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-		while ((str=br.readLine())!=null) {
-//			System.out.println(str);
-			writer.write(str+"\n");
-		}
-	}
 }
